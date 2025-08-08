@@ -1,0 +1,19 @@
+{
+    "name": "Codingame ClashStat",
+    "description": "Displays Clash of Code stats on Codingame",
+    "version": "1.0",
+    "manifest_version": 3,
+    "content_scripts": [
+        {
+            "js": ["profile.js"],
+            "matches": ["https://www.codingame.com/*"],
+            "world": "MAIN"
+        }
+    ],
+    "icons": {
+        "16": "codingame.png",
+        "32": "codingame.png",
+        "48": "codingame.png",
+        "128": "codingame.png"
+    }
+}
