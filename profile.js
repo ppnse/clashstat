@@ -1,15 +1,13 @@
 const statMap = {};
 const clashFlag = Symbol("clashstat");
 
-const nativeXHO = XMLHttpRequest.prototype.open;
-const nativeXHS = XMLHttpRequest.prototype.send;
-
 const headers = {
     "accept": "application/json, text/plain, */*",
     "accept-language": "en-GB,en;q=0.9",
     "content-type": "application/json;charset=UTF-8"
 };
 
+const nativeXHO = XMLHttpRequest.prototype.open;
 XMLHttpRequest.prototype.open = function (_, endpoint) {
     if (endpoint == "/services/CodinGamer/findCodingamerFollowCard") {
         this[clashFlag] = true;
@@ -17,6 +15,7 @@ XMLHttpRequest.prototype.open = function (_, endpoint) {
     return nativeXHO.apply(this, arguments);
 };
 
+const nativeXHS = XMLHttpRequest.prototype.send;
 XMLHttpRequest.prototype.send = function (partial) {
     if (this[clashFlag]) {
         const clashStat = fetch("https://www.codingame.com/services/Leaderboards/getCodinGamerClashRanking", {
@@ -48,11 +47,22 @@ new MutationObserver(async (mutations) => {
 
     if (clashStat) {
         infoRank.textContent = clashStat.rank.toLocaleString("en-US");
-        infoSub.textContent = "th"; // Fix sub
-        infoSection.appendChild(document.createTextNode(`\u00A0(${clashStat.clashesCount.toLocaleString("en-US")})`));
+        infoSub.textContent = rankSub(clashStat.rank);
+        if (clashStat.rank <= 100) { // serious player
+            Object.assign(infoRank.style, { color: "red", fontWeight: "bold" });
+        }
+        
+        const infoClash = infoSection.appendChild(document.createTextNode(`\u00A0(${clashStat.clashesCount.toLocaleString("en-US")})`));
     } else { // First clash?
-        infoRank.textContent = "L";
-        infoSub.textContent = "s";
+        infoRank.textContent = "rookie";
+        infoRank.style.color = "yellow";
+        infoSub.textContent = "??";
     }
 
 }).observe(document.querySelector("codingamer-card.codingamer-card-popup"), { childList: true });
+
+function rankSub(rank) {
+    const hundred = rank % 100;
+    if (hundred >= 11 && hundred <= 13) return "th";
+    return ["th", "st", "nd", "rd"][rank % 10] || "th";
+}
